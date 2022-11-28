@@ -2,6 +2,11 @@
 
 Sketch for Arduino Leonardo/Micro based controller circuit for taiko games on PC and Nintendo Switch
 
+## Fork alterations
+
+This fork is intended to adapt for a Pro Micro clone board to be the "brains" of the build. This introduces certain limitations, especially regarding the number of accessible pins; we have a total of 13 digital and 4 analog/digital inputs to the device. All four analog pins will need to be used for the piezos; a controller pad will take up eight pins, four are currently dedicated to LEDs, leaving a total of one free input potentially used to switch the controller mode between Switch controller and keyboard emulation. I also want to update the software to be able to select the mode at runtime based on this pin configuration.
+One digital pin can be potentially freed with clever multiplexing of the LEDs, using alternating polarity to control two LEDs off of one pin each, plus one pin to serve as an alternating source/sink. The concept is that used in the FE1.1S chip LED control lines.
+
 ## Software Setup
 
 ### Windows 10
@@ -14,6 +19,7 @@ Install the latest version of Arduino IDE from the official website: [https://ww
 
 ### Modifications to Arduino IDE
 
+TODO: verify these instructions and files in regards to Pro Micro compatibility
 Before starting Arduino IDE, to enable nintendo switch functionality, replace the following files with the ones provided in "setup" folder:
 
 - `<your arduino installation path>/hardware/arduino/avr/libraries/HID/src/HID.h`
@@ -53,7 +59,7 @@ To enable or disable keyboard or Nintendo Switch controller functionality, remov
 
 ### Materials
 
-To set up the circuit, you need an Arduino Leonardo, a set of four piezo sensors, and four 1MΩ resistors for some special cases.
+To set up the circuit, you need an Arduino Leonardo (or Pro Micro clone), a set of four piezo sensors, and four 1MΩ resistors for some special cases.
 
 ### Connect the Circuit
 
@@ -81,7 +87,7 @@ For best performance, the sensors must be piezo sensors (a.k.a. piezo speakers, 
 
 For further improvements, you can use some diodes to limit the voltage of the piezo sensors, or use a 2.5v power supply, but this won't matter in most cases, at least on my side.
 
-If you can somehow connect a 4x4 matrix keyboard (no pull-up resistors needed) to Arduino's digital pin 0-15, it will work as a controller along with the drum:
+If you can somehow connect a 4x4 matrix keyboard (no pull-up resistors needed) to Arduino's digital pin 0-7, it will work as a controller along with the drum:
 
 ![](https://i.loli.net/2019/03/07/5c813dc59e6a0.png)
 
@@ -120,10 +126,10 @@ How fast every threshold level decays, in ratio per refresh (about 300ms).
 For every refresh, the threshold value is multiplied by k_decay.
 
 #### pin[4] = {A0, A3, A1, A2}
-The analog input pins of four sensors.
+The analog input pins which each of the four piezo sensors are connected to.
 
 #### key[4] = {'d', 'f', 'j', 'k'}
-The key mapping of four sensors, if keyboard inputs are enabled.
+The output mapping of the relative sensors, if keyboard inputs are enabled.
 
 #### sens[4] = {1.0, 1.0, 1.0, 1.0};
 Sensitivity of every sensor. All sensor levels are scaled by these values respectively before use.
@@ -142,6 +148,8 @@ A typical output could be:
 51 2  11 58 | * * * # | 53
 83 5  9  24 | # * * # | 83
 ```
+
+Note that debug output and the matrix keypad MAY be mutually exclusive, depending on the pin usage of the matrix, and if serial is being transcieved on the hardware port or over USB. This is to be confirmed as I experiment with the current setup of the library.
 
 ## Credits
 
