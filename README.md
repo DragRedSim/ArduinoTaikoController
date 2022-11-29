@@ -4,8 +4,9 @@ Sketch for Arduino Leonardo/Micro based controller circuit for taiko games on PC
 
 ## Fork alterations
 
-This fork is intended to adapt for a Pro Micro clone board to be the "brains" of the build. This introduces certain limitations, especially regarding the number of accessible pins; we have a total of 13 digital and 4 analog/digital inputs to the device. All four analog pins will need to be used for the piezos; a controller pad will take up eight pins, four are currently dedicated to LEDs, leaving a total of one free input potentially used to switch the controller mode between Switch controller and keyboard emulation. I also want to update the software to be able to select the mode at runtime based on this pin configuration.
-One digital pin can be potentially freed with clever multiplexing of the LEDs, using alternating polarity to control two LEDs off of one pin each, plus one pin to serve as an alternating source/sink. The concept is that used in the FE1.1S chip LED control lines.
+This fork is intended to adapt for a Pro Micro clone board to be the "brains" of the build. This introduces certain limitations, especially regarding the number of accessible pins; we have a total of 14 digital and 4 analog/digital inputs to the device. All four analog pins will need to be used for the piezos; a controller pad will take up eight pins, four are currently dedicated to LEDs, leaving a total of two free inputs potentially used to change the controller mode between Switch controller and keyboard emulation. I also want to update the software to be able to select the mode at runtime based on this pin configuration.
+
+One digital pin can be potentially freed with clever multiplexing of the LEDs, using alternating polarity to control two LEDs off of one pin each, plus one pin to serve as an alternating source/sink. The concept is that used in the FE1.1S chip LED control lines. However, to do so requires editing of the current led_pins functionality. Current thoughts are to store the pin mapping as negatives where driven by the shared pin. This is not intended to be handled immediately; if the need arises, it is an option.
 
 ## Software Setup
 
@@ -20,6 +21,7 @@ Install the latest version of Arduino IDE from the official website: [https://ww
 ### Modifications to Arduino IDE
 
 TODO: verify these instructions and files in regards to Pro Micro compatibility
+
 Before starting Arduino IDE, to enable nintendo switch functionality, replace the following files with the ones provided in "setup" folder:
 
 - `<your arduino installation path>/hardware/arduino/avr/libraries/HID/src/HID.h`
@@ -59,7 +61,7 @@ To enable or disable keyboard or Nintendo Switch controller functionality, remov
 
 ### Materials
 
-To set up the circuit, you need an Arduino Leonardo (or Pro Micro clone), a set of four piezo sensors, and four 1MΩ resistors for some special cases.
+To set up the circuit, you need an Arduino Leonardo (or Pro Micro clone), a set of four piezo sensors, and four 1MΩ resistors for some special cases, and an extra two resistors of the same value for a Pro Micro.
 
 ### Connect the Circuit
 
@@ -75,6 +77,8 @@ The mapping of the sensors by default should be:
 - Right Rim: A2
 
 To customize the mapping, checkout the [parameter](#parameters-with-suggested-values) section.
+
+If you're using a Pro Micro, you don't have a 3.3v port to use. Simply connect the two extra resistors as a divider, and use the centre point to give you your source voltage. Alternately, use a regulator.
 
 For most of the times, plugging the sensors directly into Arduino's pins will work.
 If the controller seems to be generating random inputs, you can fix this by plugging some 1MΩ resistors in parallel:
@@ -156,4 +160,3 @@ Note that debug output and the matrix keypad MAY be mutually exclusive, dependin
 - This sketch makes use of Arduino IDE and its useful library. A modified version of the Arduino library is used to allow us to make a valid Nintendo Switch controller.
 - The HID descriptor is from progmem's work of reverse engineering of Pokken Tournament Pro Pad: [progmem/Switch-Fightstick](https://github.com/progmem/Switch-Fightstick)
 - The HID descriptor is coded using many useful macros and functions from [LUFA Library](http://www.fourwalledcubicle.com/LUFA.php)
-
